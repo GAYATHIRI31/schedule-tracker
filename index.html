@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Tracker - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --text-primary: #000;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --surface-2: #fff;
+            --surface-1: #f5f5f5;
+            --border: #ddd;
+            --border-strong: #bbb;
+            --bg-accent: #e3f2fd;
+            --text-accent: #1976d2;
+            --bg-success: #e8f5e9;
+            --text-success: #388e3c;
+            --radius: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #fff;
+                --text-secondary: #aaa;
+                --text-muted: #666;
+                --surface-2: #1a1a1a;
+                --surface-1: #2d2d2d;
+                --border: #444;
+                --border-strong: #555;
+                --bg-accent: #1e3a8a;
+                --text-accent: #60a5fa;
+                --bg-success: #064e3b;
+                --text-success: #86efac;
+            }
+        }
+
+        body {
+            background: var(--surface-2);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .tracker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .tracker-card {
+            background: var(--surface-1);
+            border: 0.5px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tracker-card:hover {
+            border-color: var(--text-accent);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(25, 118, 210, 0.15);
+        }
+
+        .tracker-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+        }
+
+        .tracker-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .tracker-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .tracker-cta {
+            margin-top: 1rem;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .arrow {
+            font-size: 14px;
+        }
+
+        .info-section {
+            background: var(--surface-1);
+            border: 0.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .tasks-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .task-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-accent);
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 1rem 0;
+            border-top: 0.5px solid var(--border);
+        }
+
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-check {
+            color: var(--text-success);
+            font-weight: 600;
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .tracker-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .tracker-card {
+                padding: 1.5rem;
+            }
+
+            .tracker-icon {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">📅</div>
+            <h1>Schedule Tracker</h1>
+            <p>Organize your day and track your habits</p>
+        </div>
+
+        <div class="info-section">
+            <div class="info-title">Your Daily Tasks</div>
+            <div class="tasks-list">
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Morning Wakeup</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Interview Prep</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Yoga</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Work (9 hrs)</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Shri Rama</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>AI Learn</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Social Media</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Sleep</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>News</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Get Ready & Eat</span>
+                </div>
+                <div class="task-item">
+                    <div class="task-dot"></div>
+                    <span>Drink Milk</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tracker-grid">
+            <a href="daily_schedule_tracker.html" class="tracker-card">
+                <div class="tracker-icon">⏱️</div>
+                <div class="tracker-name">Daily Tracker</div>
+                <div class="tracker-desc">Real-time tracking of your daily schedule with current activity status</div>
+                <div class="tracker-cta">
+                    Open <span class="arrow">→</span>
+                </div>
+                <div class="features-list">
+                    <div class="feature">
+                        <span class="feature-check">✓</span>
+                        <span>Live time updates</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-check">✓</span>
+                        <span>Current activity</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-check">✓</span>
+                        <span>Progress bar</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="monthly_schedule_tracker.html" class="tracker-card">
+                <div class="tracker-icon">📊</div>
+                <div class="tracker-name">Monthly Tracker</div>
+                <div class="tracker-desc">Track your daily habits and routines across the entire month with analytics</div>
+                <div class="tracker-cta">
+                    Open <span class="arrow">→</span>
+                </div>
+                <div class="features-list">
+                    <div class="feature">
+                        <span class="feature-check">✓</span>
+                        <span>Calendar view</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-check">✓</span>
+                        <span>Habit tracking</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-check">✓</span>
+                        <span>Monthly stats</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>📱 Works on mobile and desktop • 💾 Data saves locally • 🔄 No account needed</p>
+            <p style="margin-top: 0.5rem;">All files work offline. Open these files in any web browser.</p>
+        </div>
+    </div>
+</body>
+</html>

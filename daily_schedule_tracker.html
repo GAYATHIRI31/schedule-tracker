@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Schedule Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --text-primary: #000;
+            --text-secondary: #666;
+            --text-muted: #999;
+            --surface-2: #fff;
+            --surface-1: #f5f5f5;
+            --border: #ddd;
+            --border-strong: #bbb;
+            --bg-accent: #e3f2fd;
+            --text-accent: #1976d2;
+            --bg-success: #e8f5e9;
+            --text-success: #388e3c;
+            --radius: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #fff;
+                --text-secondary: #aaa;
+                --text-muted: #666;
+                --surface-2: #1a1a1a;
+                --surface-1: #2d2d2d;
+                --border: #444;
+                --border-strong: #555;
+                --bg-accent: #1e3a8a;
+                --text-accent: #60a5fa;
+                --bg-success: #064e3b;
+                --text-success: #86efac;
+            }
+        }
+
+        body {
+            background: var(--surface-2);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .schedule-container {
+            padding: 1rem 0;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .schedule-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .date-display {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .time-display {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--surface-1);
+            border-radius: var(--radius);
+            border: 0.5px solid var(--border);
+        }
+
+        .current-time {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--text-accent);
+            margin: 0;
+        }
+
+        .current-activity {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0.5rem 0 0 0;
+        }
+
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .schedule-item {
+            background: var(--surface-1);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .schedule-item:hover {
+            border-color: var(--border-strong);
+            background: var(--surface-2);
+        }
+
+        .schedule-item.active {
+            background: var(--bg-accent);
+            border-color: var(--text-accent);
+            border-width: 2px;
+        }
+
+        .schedule-item.completed {
+            opacity: 0.6;
+        }
+
+        .time-badge {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-accent);
+            min-width: 70px;
+            flex-shrink: 0;
+        }
+
+        .schedule-item.active .time-badge {
+            font-weight: 700;
+        }
+
+        .activity-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .activity-duration {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 2px 0 0 0;
+        }
+
+        .activity-status {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 50px;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .status-upcoming {
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            border: 0.5px solid var(--border);
+        }
+
+        .status-active {
+            background: var(--text-accent);
+            color: white;
+        }
+
+        .status-completed {
+            background: var(--bg-success);
+            color: var(--text-success);
+        }
+
+        .progress-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--surface-1);
+            border-radius: var(--radius);
+            border: 0.5px solid var(--border);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--text-accent), var(--text-success));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 13px;
+            background: var(--surface-1);
+            border: 0.5px solid var(--border-strong);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--border);
+            border-color: var(--border-strong);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0.75rem;
+            }
+
+            .schedule-header h1 {
+                font-size: 18px;
+            }
+
+            .current-time {
+                font-size: 28px;
+            }
+
+            .schedule-item {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+
+            .activity-name {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="schedule-container">
+        <div class="schedule-header">
+            <h1>Daily Schedule</h1>
+        </div>
+
+        <p class="date-display" id="dateDisplay">Today, Oct 7</p>
+
+        <div class="time-display">
+            <p class="current-time" id="currentTime">05:30</p>
+            <p class="current-activity" id="currentActivity">Morning Wakeup</p>
+        </div>
+
+        <div class="schedule-list" id="scheduleList"></div>
+
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <p class="progress-text" id="progressText">0% of day complete</p>
+        </div>
+
+        <div class="button-group">
+            <button onclick="jumpToNow()">Jump to Now</button>
+            <button onclick="resetTracker()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        const schedules = [
+            { name: "Morning Wakeup", start: "05:30", end: "06:00", duration: "30 mins" },
+            { name: "Drink Milk & Fresh up", start: "05:30", end: "06:00", duration: "30 mins" },
+            { name: "Interview preparation", start: "06:00", end: "08:00", duration: "2 hrs" },
+            { name: "Yoga", start: "08:00", end: "08:20", duration: "20 mins" },
+            { name: "News", start: "08:20", end: "08:30", duration: "10 mins" },
+            { name: "Get ready & Eat", start: "08:30", end: "09:00", duration: "30 mins" },
+            { name: "Work", start: "09:00", end: "18:00", duration: "9 hrs" },
+            { name: "Shri Rama", start: "18:00", end: "19:00", duration: "1 hr" },
+            { name: "AI Learn", start: "19:00", end: "21:00", duration: "2 hrs" },
+            { name: "Social Media", start: "21:00", end: "22:00", duration: "1 hr" },
+            { name: "Sleep", start: "22:30", end: "05:30", duration: "7 hrs" }
+        ];
+
+        function timeToMinutes(timeStr) {
+            const [hours, mins] = timeStr.split(':').map(Number);
+            return hours * 60 + mins;
+        }
+
+        function getActivityStatus(startStr, endStr) {
+            const now = new Date();
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            
+            const startTime = timeToMinutes(startStr);
+            let endTime = timeToMinutes(endStr);
+            
+            // Handle overnight sleep (22:30 to 05:30)
+            if (startStr === "22:30" && endStr === "05:30") {
+                if (currentMins >= startTime || currentMins < endTime) {
+                    return currentMins >= startTime || currentMins < endTime ? 'active' : 'completed';
+                }
+                if (currentMins < startTime && currentMins >= endTime) return 'upcoming';
+                return 'completed';
+            }
+
+            if (currentMins >= startTime && currentMins < endTime) return 'active';
+            if (currentMins >= endTime) return 'completed';
+            return 'upcoming';
+        }
+
+        function updateSchedule() {
+            const now = new Date();
+            
+            // Update date
+            const options = { weekday: 'long', month: 'short', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+            document.getElementById('dateDisplay').textContent = `Today, ${dateStr}`;
+            
+            // Update current time
+            const hours = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${mins}`;
+
+            // Update schedule items
+            let completedCount = 0;
+            let currentActivity = 'Sleep';
+
+            const listHTML = schedules.map((item) => {
+                const status = getActivityStatus(item.start, item.end);
+                if (status === 'completed') completedCount++;
+                if (status === 'active') currentActivity = item.name;
+
+                return `
+                    <div class="schedule-item ${status === 'active' ? 'active' : ''} ${status === 'completed' ? 'completed' : ''}">
+                        <div class="time-badge">${item.start} - ${item.end}</div>
+                        <div class="activity-info">
+                            <p class="activity-name">${item.name}</p>
+                            <p class="activity-duration">${item.duration}</p>
+                        </div>
+                        <div class="activity-status status-${status}">
+                            ${status === 'active' ? 'Now' : status === 'completed' ? 'Done' : 'Next'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('scheduleList').innerHTML = listHTML;
+            document.getElementById('currentActivity').textContent = currentActivity;
+            
+            const progressPercent = Math.round((completedCount / schedules.length) * 100);
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            document.getElementById('progressText').textContent = `${progressPercent}% complete (${completedCount}/${schedules.length} tasks)`;
+        }
+
+        function jumpToNow() {
+            const activeItem = document.querySelector('.schedule-item.active');
+            if (activeItem) {
+                activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function resetTracker() {
+            updateSchedule();
+            jumpToNow();
+        }
+
+        // Initial update
+        updateSchedule();
+
+        // Update every minute
+        setInterval(updateSchedule, 60000);
+
+        // Update every second for real-time feel
+        setInterval(() => {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${mins}`;
+        }, 1000);
+    </script>
+</body>
+</html>
